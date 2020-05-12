@@ -6,14 +6,21 @@
           <div class="text-center mt-5">
             <span class="font-custom ">Barancan Yardımcı</span>
           </div>
-          <div class="text-center">
-            <span class="normal-font">Friends List</span>
+          <div class="text-center toggle-group">
+            <button class="toggle-button" @click="activeTab = 'friends'"><span class="normal-font">Friends List</span>
+            </button>
+            <button class="toggle-button" @click="activeTab = 'requests'"><span class="normal-font">Requests</span>
+            </button>
           </div>
-          <div class="friendsList text-center">
-
-            <div class="friend" v-for="v in 10">
-              <span class="normal-font">YusufAli Çezik</span>
+          <div class="friendsList text-center" v-if="activeTab === 'friends'">
+            <div class="friend" v-for="friend in friendList">
               <img src="../../assets/camera.png" class="cam">
+            </div>
+          </div>
+          <div class="friendsList text-center" v-if="activeTab === 'requests'">
+            <div class="friend" v-for="request in requestList">
+              <span class="normal-font">{{request.senderUserName}}</span>
+              <img src="../../assets/accept.png" class="cam" @click="acceptRequest(request.senderId,request.requestId)">
             </div>
           </div>
           <button class="button-holder">
@@ -32,19 +39,19 @@
 
 <script>
     import axios from 'axios';
+     let qs = require('qs');
 
     export default {
         name: "Main",
         data() {
             return {
-                friendList: []
+                friendList: [],
+                requestList: [],
+                activeTab: "friends"
             }
         },
         methods: {
             getUserInfo() {
-
-
-
                 console.log(this.$store.getters.getToken)
                 axios.get('http://localhost:8081/api/getUserInfo', {
                     params: {
@@ -56,7 +63,29 @@
 
                     },
                 }).then((response) => {
-                    console.log(response)
+                    console.log(response.data)
+                    this.friendList = response.data.friends;
+                    this.requestList = response.data.requests;
+
+                })
+            },
+            acceptRequest(requestOwnerId,reqId) {
+                console.log(requestOwnerId);
+                let data = {
+                    myId :this.$store.getters.getUserId.toString(),
+                    senderId : requestOwnerId.toString(),
+                    reqId : reqId
+                }
+                axios.post('http://localhost:8081/api/acceptRequest',{} ,{
+                        headers: {
+                            'Authorization': this.$store.getters.getToken.toString(),
+                            'Content-Type': 'application/json',
+                        },
+                        params :data
+                    }
+                    ).
+                then((response) => {
+                    console.log(response.data)
                 })
             }
         },
@@ -121,7 +150,7 @@
 
   .friend {
     background-color: #0C0F2A;
-    width: 90%;
+    width: 70%;
     height: 75px;
     margin-left: auto;
     margin-right: auto;
@@ -142,6 +171,21 @@
     overflow-y: auto;
   }
 
+  .toggle-button {
+    border: 0;
+    margin-top: 25px;
+    background-color: #272D33;
+    width: 200px;
+    height: 80px;
+  }
+
+  .toggle-button-active {
+    border: 0;
+    margin-top: 25px;
+    background-color: #5ec46f;
+    width: 200px;
+    height: 80px;
+  }
 
   .friendsList::-webkit-scrollbar {
     width: 10px;
