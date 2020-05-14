@@ -15,7 +15,7 @@
         <div class="right-side text-center">
           <div>
             <div class="camera-block ">
-              <video id="localVideo" autoplay height="250"></video>
+              <video id="localVideo"  style="background-color: black" autoplay height="250"></video>
             </div>
             <div class="camera-block ">
               <video id="remoteVideo" style="background-color: black" autoplay height="250"></video>
@@ -37,7 +37,7 @@
 
     let localStream;
     const configuration = {
-        iceServers: [     // Information about ICE servers - Use your own!
+        iceServers: [
             {
                 urls: "turn:" + 'localhost:8080',  // A TURN server
                 username: "webrtc",
@@ -56,8 +56,9 @@
                 peerConn: null,
                 remoteDesc: null,
                 destination: null,
-                iceCandidate : null,
-                callingUsername : null
+                iceCandidate: null,
+                callingUsername: null,
+                transceiver :null
             }
         },
         components: {
@@ -70,24 +71,15 @@
                 });
                 console.log("leftData", this.leftData)
             },
-            async startMyVideo() {
+             startMyVideo() {
                 var vm = this;
-                const gumStream = await navigator.mediaDevices.getUserMedia(
+                var selfView = document.getElementById('localVideo');
+
+                  const stream =  navigator.mediaDevices.getUserMedia(
                     {video: true, audio: false});
-                for (const track of gumStream.getTracks()) {
-                    var selfView = document.getElementById('localVideo');
-                    selfView.srcObject = gumStream;
-                    localStream = gumStream;
-                    vm.peerConn.addTrack(track);
-                }
-                // navigator.getUserMedia({
-                //     'audio': false,
-                //     'video': true
-                // }, function (stream) {
-                //
-                //     vm.peerConn.addStream(stream)
-                //     selfView.play();
-                // });
+                    this.peerConn.addStream(stream);
+                    selfView.srcObject = stream;
+
             },
             handleMessage(msg) {
 
@@ -101,56 +93,68 @@
                     this.handleCandidate(content.data)
                 }
             },
-            call(callingUsername) { // burası teklif yapacak ( offer )
+            async call(callingUsername) { // burası teklif yapacak ( offer )
                 this.callingUsername = callingUsername;
                 var vm = this;
-                this.peerConn.createOffer((offer) => {
-                    return vm.peerConn.setLocalDescription(offer);
-                }).then((data) => {
-                    Socket.send({
-                        event: "offer",
-                        dest: callingUsername,
-                        data: data
-                    })
-                }).catch(reason => {
-                    throw reason;
+                const offer = await this.peerConn.createOffer();
+
+                if (this.peerConn.signalingState !== "stable") {
+                    return;
+                }
+                await this.peerConn.setLocalDescription(offer);
+
+                Socket.send({
+                    event: "offer",
+                    dest: callingUsername,
+                    data: this.peerConn.localDescription
                 })
-                console.log("peercon 1",this.peerConn)
             },
-            handleCall(dest,sdp) { // burası cevap oluşturuyor
-                this.peerConn.setRemoteDescription(new RTCSessionDescription(sdp));
-                var vm = this;
-                this.peerConn.createAnswer().then(function (answer) {
-                     vm.peerConn.setLocalDescription(answer);
-                }).then(() => {
-                    Socket.send({
-                        event: "answer",
-                        dest: dest,
-                        data: vm.peerConn.localDescription
-                    });
-                })
-                console.log("peercon 2",this.peerConn)
+            async handleCall(dest, sdp) { // burası cevap oluşturuyor
+                var desc = new RTCSessionDescription(sdp);
+                if(this.peerConn.signalingState !== "stable"){
+                    await Promise.all([
+                        this.peerConn.setLocalDescription({type: "rollback"}),
+                        this.peerConn.setRemoteDescription(desc)
+                    ]);
+                }else{
+                    await this.peerConn.setRemoteDescription(desc);
+                }
+
+                await this.peerConn.setLocalDescription(await this.peerConn.createAnswer());
+
+                Socket.send({
+                    event: "answer",
+                    dest: dest,
+                    data: this.peerConn.localDescription
+                });
 
             },
-            handleAnswer(answer) {
-                console.log("peercon 3",this.peerConn)
+            async handleAnswer(answer) {
+                console.log("answer yakalandi")
+                var desc = new RTCSessionDescription(answer);
+                await this.peerConn.setRemoteDescription(desc);
 
-                this.peerConn.setRemoteDescription(new RTCSessionDescription(answer));
             },
 
-            handleCandidate(candidate) {
-                this.peerConn.addIceCandidate(new RTCIceCandidate(candidate));
+           async handleCandidate(candidate) {
+
+               var ncandidate = new RTCIceCandidate(candidate);
+                try {
+                    await this.peerConn.addIceCandidate(ncandidate)
+                } catch(err) {
+                    console.log(err)
+                }
             },
             createPeerConnection() {
                 console.log("peer connection kurulumu")
                 this.peerConn = new RTCPeerConnection(configuration);
-                this.peerConn.addtrack = e => {
-                    var video = document.getElementById("remoteVideo");
-                    video.srcObject = e.stream;
-                };
+                  this.peerConn.onaddstream = e => {
+                      console.log("ontrack calisti")
+                      var video = document.getElementById("remoteVideo");
+                      video.srcObject = e.stream;
+                  };
                 var vm = this;
                 this.peerConn.onicecandidate = (evt) => {
-                    console.log("icecalisti")
                     if (evt.candidate)
                         Socket.send({
                             event: 'candidate',
