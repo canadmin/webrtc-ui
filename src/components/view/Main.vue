@@ -71,14 +71,23 @@
                 });
                 console.log("leftData", this.leftData)
             },
-             startMyVideo() {
+             async startMyVideo() {
                 var vm = this;
-                var selfView = document.getElementById('localVideo');
+                 console.log("start video")
 
-                  const stream =  navigator.mediaDevices.getUserMedia(
-                    {video: true, audio: false});
-                    this.peerConn.addStream(stream);
-                    selfView.srcObject = stream;
+                 const mediaStream = await navigator.mediaDevices.getUserMedia({video: true});
+                 var selfVideo = document.getElementById('localVideo');
+                 selfVideo.srcObject = mediaStream
+                 this.peerConn.addStream(mediaStream);
+                 // navigator.mediaDevices.getUserMedia(
+                 //    {video: true, audio: false},(stream)=>{
+                 //         var selfView = document.getElementById('localVideo');
+                 //         selfView.srcObject = stream
+                 //         selfView.play();
+                 //         console.log("yayin başladı")
+                 //         vm.peerConn.addStream(stream);
+                 //     });
+
 
             },
             handleMessage(msg) {
