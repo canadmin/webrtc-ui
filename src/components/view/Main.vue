@@ -18,12 +18,16 @@
               <video id="localVideo" autoplay height="250"></video>
             </div>
             <div class="camera-block ">
-              <video id="remoteVideo" autoplay height="250"></video>
+              <video id="remoteVideo" style="background-color: black" autoplay height="250"></video>
             </div>
 
             <textarea></textarea>
-            <div>Kabul Et</div>
-            <div></div>
+            <div>
+              <button>setRemoteDesc</button>
+            </div>
+            <div>
+              <button>AddCandite</button>
+            </div>
           </div>
         </div>
       </div>
@@ -37,6 +41,7 @@
     import {requests} from "../../common/requests";
     import Socket from "../../common/socket"
 
+    let localStream;
     const configuration = {
         iceServers: [{'urls': 'stun:stun4.l.google.com:19302'}],
     };
@@ -48,7 +53,10 @@
                 activeTab: "friends",
                 destPeer: null,
                 peerConn: null,
-                callingUsername: null
+                remoteDesc: null,
+                destination: null,
+                iceCandidate : null,
+                callingUsername : null
             }
         },
         components: {
@@ -61,69 +69,87 @@
                 });
                 console.log("leftData", this.leftData)
             },
-            startMyVideo() {
-                navigator.getUserMedia({
-                    'audio': true,
-                    'video': true
-                }, function (stream) {
+            async startMyVideo() {
+                var vm = this;
+                const gumStream = await navigator.mediaDevices.getUserMedia(
+                    {video: true, audio: true});
+                for (const track of gumStream.getTracks()) {
                     var selfView = document.getElementById('localVideo');
-                    selfView.srcObject = stream;
-                    selfView.play();
-                });
+                    selfView.srcObject = gumStream;
+                    localStream = gumStream;
+                    vm.peerConn.addTrack(track);
+                }
+                // navigator.getUserMedia({
+                //     'audio': false,
+                //     'video': true
+                // }, function (stream) {
+                //
+                //     vm.peerConn.addStream(stream)
+                //     selfView.play();
+                // });
             },
             handleMessage(msg) {
+
                 console.log(msg);
                 var content = JSON.parse(msg);
                 if (content.event === "offer") {
                     this.handleCall(content.dest, content.data);
-                } else if(content.event === "answer"){
+                } else if (content.event === "answer") {
                     this.handleAnswer(content.data);
-                }else if(content.event === "candidate"){
-                   this.handleCandidate(content.event)
+                } else if (content.event === "candidate") {
+                    this.handleCandidate(content.data)
                 }
             },
             call(callingUsername) { // burası teklif yapacak ( offer )
                 this.callingUsername = callingUsername;
                 var vm = this;
                 this.peerConn.createOffer((offer) => {
-                     vm.peerConn.setLocalDescription(offer);
-                }).then(() => {
+                    return vm.peerConn.setLocalDescription(offer);
+                }).then((data) => {
                     Socket.send({
                         event: "offer",
                         dest: callingUsername,
-                        data: vm.peerConn.localDescription
+                        data: data
                     })
                 }).catch(reason => {
                     throw reason;
                 })
-                this.startMyVideo();
+                console.log("peercon 1",this.peerConn)
             },
-            handleCall(dest, sdp) { // burası cevap oluşturuyor
-                this.peerConn.setRemoteDescription(new RTCSessionDescription(sdp))
+            handleCall(dest,sdp) { // burası cevap oluşturuyor
+                this.peerConn.setRemoteDescription(new RTCSessionDescription(sdp));
                 var vm = this;
-                this.peerConn.createAnswer()
-                    .then((answer) => {
-                        vm.peerConn.setLocalDescription(answer)
-                            .then((data) => {
-                            Socket.send({
-                                event: "answer",
-                                dest: dest,
-                                data: vm.peerConn.localDescription
-                            })
-                        })
-                    })
+                this.peerConn.createAnswer().then(function (answer) {
+                    return vm.peerConn.setLocalDescription(answer);
+                }).then((data) => {
+                    Socket.send({
+                        event: "answer",
+                        dest: dest,
+                        data: vm.peerConn.localDescription
+                    });
+                })
+                console.log("peercon 2",this.peerConn)
+
             },
-            handleAnswer(answer){
-            //    this.peerConn.setRemoteDescription(answer);
+            handleAnswer(answer) {
+                console.log("peercon 3",this.peerConn)
+
+                this.peerConn.setRemoteDescription(new RTCSessionDescription(answer));
             },
+
             handleCandidate(candidate) {
-              //  this.peerConn.addIceCandidate(candidate);
+                this.peerConn.addIceCandidate(new RTCIceCandidate(candidate));
             },
             createPeerConnection() {
                 console.log("peer connection kurulumu")
                 this.peerConn = new RTCPeerConnection(configuration);
+                this.peerConn.addtrack = e => {
+                    var video = document.getElementById("remoteVideo");
+                    video.srcObject = e.stream;
+                };
                 var vm = this;
                 this.peerConn.onicecandidate = (evt) => {
+                    console.log("icecalisti")
                     if (evt.candidate)
                         Socket.send({
                             event: 'candidate',
@@ -132,11 +158,13 @@
                         })
                 }
 
-            }
+            },
+
 
         },
 
         created() {
+            this.startMyVideo();
             this.$store.dispatch('getUserInfo');
             this.getUserInfo();
             Socket.$on("message", this.handleMessage);
