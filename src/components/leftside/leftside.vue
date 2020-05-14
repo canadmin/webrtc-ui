@@ -9,7 +9,7 @@
     <div class="friendsList text-center" v-if="activeTab === 'friends'">
       <div class="friend" v-for="friend in friendsList">
         <span class="normal-font">{{friend.username}}</span>
-        <img src="../../assets/camera.png" class="cam">
+        <img src="../../assets/camera.png" class="cam" @click="call(friend.username)">
       </div>
     </div>
     <div class="friendsList text-center" v-if="activeTab === 'requests'">
@@ -18,6 +18,19 @@
         <img src="../../assets/accept.png" class="cam" @click="acceptRequest(request.senderId,request.requestId)">
       </div>
     </div>
+    <div class="searchFriend text-center" v-if="activeTab === 'searchFriend'">
+    <input class="search-input mt-3" v-model="searchUser" @keyup.enter="searchFriend(searchUser)">
+      <hr class="w-75">
+      <div class="users">
+        <div class="user" v-for="user in users">
+          <span class="normal-font">{{user.username}}</span>
+          <img src="../../assets/addnew.png" class="cam" @click="sendRequest(user.userId)">
+        </div>
+      </div>
+    </div>
+    <button class="button-holder" @click="activeTab='searchFriend'">
+      <span class="normal-font">Add new friend</span>
+    </button>
   </div>
 </template>
 
@@ -31,7 +44,9 @@
 
         data() {
             return {
-                activeTab: "friends"
+                activeTab: "friends",
+                searchUser : null ,
+                users : []
             }
         },
         methods: {
@@ -39,6 +54,22 @@
                 requests.acceptRequest(requestOwnerId,reqId).then(response => {
                     console.log("başarılı")
                 });
+            },
+            searchFriend(value){
+                if(value !== null || value !== ''){
+                  requests.searchFriend(value).then(response=>{
+                      console.log(response)
+                     this.users = response.data;
+                  })
+                }else{
+                    this.user = [];
+                }
+            },
+            sendRequest(userId){
+                requests.sendRequest(userId);
+            },
+            call(callingUsername){
+                this.$emit('messageFromChild',callingUsername)
             }
         },
         watch: {
@@ -70,7 +101,30 @@
     margin-top: 15px;
 
   }
+.searchFriend{
+  height: 500px;
+  overflow-y: auto;
+  background-color: white;
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 15px;
+}
+/*.users{*/
+/*  height: 350px;*/
+/*  width: 95%;*/
+/*  margin-left: auto;*/
+/*  margin-right: auto;*/
 
+/*}*/
+.user{
+  width: 80%;
+  background-color: #272D33;
+  border-radius: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+}
   .cam {
     margin-left: 15px;
     margin-top: auto;
@@ -119,5 +173,16 @@
     background-image: -webkit-gradient(linear, 0 0, 0 100%,
     color-stop(.5, rgba(255, 255, 255, .2)),
     color-stop(.5, transparent), to(transparent));
+  }
+  .button-holder {
+    width: 70%;
+    height: 50px;
+    bottom: 10px;
+    position: absolute;
+    margin-left: 50px;
+    margin-right: 50px;
+    background-color: #0C0F2A;
+    border: 0;
+
   }
 </style>
