@@ -21,13 +21,7 @@
               <video id="remoteVideo" style="background-color: black" autoplay height="250"></video>
             </div>
 
-            <textarea></textarea>
-            <div>
-              <button>setRemoteDesc</button>
-            </div>
-            <div>
-              <button>AddCandite</button>
-            </div>
+
           </div>
         </div>
       </div>
@@ -43,7 +37,14 @@
 
     let localStream;
     const configuration = {
-        iceServers: [{'urls': 'stun:stun4.l.google.com:19302'}],
+        iceServers: [     // Information about ICE servers - Use your own!
+            {
+                urls: "turn:" + 'localhost:8080',  // A TURN server
+                username: "webrtc",
+                credential: "turnserver"
+            }
+        ]
+
     };
     export default {
         name: "Main",
@@ -72,7 +73,7 @@
             async startMyVideo() {
                 var vm = this;
                 const gumStream = await navigator.mediaDevices.getUserMedia(
-                    {video: true, audio: true});
+                    {video: true, audio: false});
                 for (const track of gumStream.getTracks()) {
                     var selfView = document.getElementById('localVideo');
                     selfView.srcObject = gumStream;
@@ -120,8 +121,8 @@
                 this.peerConn.setRemoteDescription(new RTCSessionDescription(sdp));
                 var vm = this;
                 this.peerConn.createAnswer().then(function (answer) {
-                    return vm.peerConn.setLocalDescription(answer);
-                }).then((data) => {
+                     vm.peerConn.setLocalDescription(answer);
+                }).then(() => {
                     Socket.send({
                         event: "answer",
                         dest: dest,
