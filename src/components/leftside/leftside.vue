@@ -8,7 +8,7 @@
     </div>
     <div class="friendsList text-center" v-if="activeTab === 'friends'">
       <div class="friend" v-for="friend in friendsList">
-        <span class="normal-font">{{friend.username}}</span>
+        <span class="normal-font text-left">{{friend.username}}</span>
         <img src="../../assets/camera.png" class="cam" @click="call(friend.username)">
       </div>
     </div>
@@ -29,7 +29,7 @@
       </div>
     </div>
     <button class="button-holder" @click="activeTab='searchFriend'">
-      <span class="normal-font">Add new friend</span>
+      <span class="normal-font">Search Friends</span>
     </button>
   </div>
 </template>

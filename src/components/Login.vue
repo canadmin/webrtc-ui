@@ -14,17 +14,21 @@
             <p></p>
             <input type="text" placeholder="password" class="auth-input" v-model="user.password">
           </div>
-          <div>
+          <div v-if="!isUser">
+            <p></p>
+            <input type="text" placeholder="fullname" class="auth-input" v-model="user.fullName">
+          </div>
+          <div v-if="isUser">
             <input type="checkbox" placeholder="username" class="custom-checkbox"> <span
             class="textStyle">Remember me</span>
           </div>
-          <div>
+          <div class="">
             <button type="submit" class="app-button"><span style="font-size: 25px; font-family: 'Courier New';"
-                                             v-text="isUser ? 'Sign in' : 'Sign up'">Login</span></button>
+                                                           v-text="isUser ? 'Sign in' : 'Sign up'">Login</span></button>
           </div>
           <div class="div-holder ">
-            <span class="textStyle">Not a member? <u @click="isUser=!isUser"
-                                                     style="cursor: pointer">Sign up now</u></span>
+            <span class="textStyle"><u @click="isUser=!isUser"
+                                                     style="cursor: pointer" v-text="isUser?'not yet a member':'already have an account'"></u></span>
           </div>
         </form>
 
@@ -41,17 +45,32 @@
                 msg: 'Welcome to Your Vue.js App',
                 page: "login",
                 isUser: true,
-                user : {
-                    username : null,
-                    password : null
+                user: {
+                    username: null,
+                    password: null,
+                    fullName : null
                 }
 
             }
         },
-        methods : {
-            onSubmit(){
-                this.$store.dispatch("login",{...this.user,isUser : this.isUser})
-                    .then((response)=>{
+        methods: {
+            onSubmit() {
+                let nUser;
+                if(this.isUser){
+                   nUser = {
+                       username : this.user.username,
+                       password : this.user.password
+                   };
+                }else{
+                    nUser = {
+                        username : this.user.username,
+                        password : this.user.password,
+                        fullName : this.user.fullName
+                    }
+                }
+                console.log(nUser)
+                this.$store.dispatch("login", {...nUser, isUser: this.isUser})
+                    .then((response) => {
                         this.$router.push("/")
                     })
 

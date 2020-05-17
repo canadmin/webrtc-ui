@@ -4,7 +4,7 @@
       <div class="col-3  " style="height: 100vh">
         <div class="left-side">
           <div class="text-center mt-5">
-            <span class="font-custom ">Barancan Yardımcı</span>
+            <span class="font-custom ">{{fullName}}</span>
           </div>
           <app-leftside :friendsList="leftData.friendList" :requestsList="leftData.requestList"
                         @messageFromChild="call"></app-leftside>
@@ -13,15 +13,30 @@
       </div>
       <div class="col-9 h-100" style="height: 100vh;">
         <div class="right-side text-center">
-          <div>
-            <div class="camera-block ">
-              <video id="localVideo"  style="background-color: black" autoplay height="250"></video>
+
+          <div class="w-50 ml-auto mr-auto caller " v-show="isAvailableCaller">
+            <div class=" mt-5 d-inline">
+              <img src="../../assets/answer.png" width="100" class="mt-5" @click="handleCall()">
+              <img src="../../assets/decline.png" width="100" class="ml-5 mt-5">
+              <div>
+                <p class="bg-white mt-5">Arıyor</p>
+              </div>
             </div>
-            <div class="camera-block ">
-              <video id="remoteVideo" style="background-color: black" autoplay height="250"></video>
-            </div>
+          </div>
 
 
+          <div class="in-chat" v-show="isCallActive">
+            <div class="camera-block d-inline ">
+              <video id="localVideo"  class="mt-5 mr-5" style="background-color: black" autoplay height="250"></video>
+              <video id="remoteVideo"  class="mt-5 ml-5"style="background-color: black" autoplay height="250"></video>
+            </div>
+            <div class="d-inline">
+              <div class="chat-action-button">
+                <img src="../../assets/chatCam.png" width="100" class="">
+                <img src="../../assets/chatVoice.png" width="100" class="ml-5">
+                <img src="../../assets/chatcancel.png" class="chat-icon ml-5">
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -50,15 +65,21 @@
         name: "Main",
         data() {
             return {
+                fullName : null,
                 leftData: {},
                 activeTab: "friends",
                 destPeer: null,
                 peerConn: null,
                 remoteDesc: null,
                 destination: null,
+                destinationData : null,
                 iceCandidate: null,
                 callingUsername: null,
-                transceiver :null
+                transceiver :null,
+                selfStream : null,
+                isCallActive : false,
+                isAvailableCaller : false,
+
             }
         },
         components: {
@@ -74,28 +95,17 @@
              async startMyVideo() {
                 var vm = this;
                  console.log("start video")
-
-                 const mediaStream = await navigator.mediaDevices.getUserMedia({video: true});
-                 var selfVideo = document.getElementById('localVideo');
-                 selfVideo.srcObject = mediaStream
-                 this.peerConn.addStream(mediaStream);
-                 // navigator.mediaDevices.getUserMedia(
-                 //    {video: true, audio: false},(stream)=>{
-                 //         var selfView = document.getElementById('localVideo');
-                 //         selfView.srcObject = stream
-                 //         selfView.play();
-                 //         console.log("yayin başladı")
-                 //         vm.peerConn.addStream(stream);
-                 //     });
-
-
+                 this.selfStream = await navigator.mediaDevices.getUserMedia({video: true , audio :true});
+                 this.peerConn.addStream(this.selfStream);
             },
             handleMessage(msg) {
-
                 console.log(msg);
                 var content = JSON.parse(msg);
                 if (content.event === "offer") {
-                    this.handleCall(content.dest, content.data);
+                    this.isAvailableCaller = true;
+                    this.destination = content.dest;
+                    this.destinationData = content.data;
+                    // this.handleCall(content.dest, content.data);
                 } else if (content.event === "answer") {
                     this.handleAnswer(content.data);
                 } else if (content.event === "candidate") {
@@ -103,6 +113,9 @@
                 }
             },
             async call(callingUsername) { // burası teklif yapacak ( offer )
+                this.isCallActive = true;
+                var selfVideo = document.getElementById('localVideo');
+                selfVideo.srcObject = this.selfStream;
                 this.callingUsername = callingUsername;
                 var vm = this;
                 const offer = await this.peerConn.createOffer();
@@ -118,7 +131,15 @@
                     data: this.peerConn.localDescription
                 })
             },
-            async handleCall(dest, sdp) { // burası cevap oluşturuyor
+            async handleCall() { // burası cevap oluşturuyor
+                this.isAvailableCaller = false;
+                this.isCallActive = true;
+                var dest, sdp;
+                dest = this.destination;
+                sdp = this.destinationData;
+                this.isCallActive = true;
+                var selfVideo = document.getElementById('localVideo');
+                selfVideo.srcObject = this.selfStream;
                 var desc = new RTCSessionDescription(sdp);
                 if(this.peerConn.signalingState !== "stable"){
                     await Promise.all([
@@ -128,9 +149,7 @@
                 }else{
                     await this.peerConn.setRemoteDescription(desc);
                 }
-
                 await this.peerConn.setLocalDescription(await this.peerConn.createAnswer());
-
                 Socket.send({
                     event: "answer",
                     dest: dest,
@@ -139,7 +158,6 @@
 
             },
             async handleAnswer(answer) {
-                console.log("answer yakalandi")
                 var desc = new RTCSessionDescription(answer);
                 await this.peerConn.setRemoteDescription(desc);
 
@@ -178,14 +196,13 @@
         },
 
         created() {
-            this.startMyVideo();
+            this.startMyVideo()
             this.$store.dispatch('getUserInfo');
             this.getUserInfo();
             Socket.$on("message", this.handleMessage);
             Socket.$on("close", this.handleMessage);
             this.createPeerConnection();
-
-            // this.startMyVideo()
+            this.fullName = localStorage.getItem("fullName")
         }
     }
 </script>
@@ -207,7 +224,7 @@
     width: 100%;
     margin-top: 50px;
     background-color: #383C40;
-    height: 90vh;
+    height: 800px;
     position: relative;
     margin-right: auto;
     -webkit-box-shadow: 1px 0px 43px 0px rgba(0, 0, 0, 0.75);
@@ -224,8 +241,9 @@
     -webkit-box-shadow: 1px 0px 43px 0px rgba(0, 0, 0, 0.75);
     -moz-box-shadow: 1px 0px 43px 0px rgba(0, 0, 0, 0.75);
     box-shadow: 1px 0px 43px 0px rgba(0, 0, 0, 0.75);
-    height: 90vh;
+    height: 800px;
     border-radius: 10px;
+
     position: relative;
   }
 
@@ -241,10 +259,30 @@
     font-size: 20px;
 
   }
-
-  .camera-block {
-    width: 250px;
+  .chat-icon{
+    width: 120px;
+    height: 120px;
   }
 
+  video {
+    width: 40%;
+    height: 40vh;
+  }
+  .chat-action-button{
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10%;
+    background-color: #717171;
+    border-radius: 20px;
+    -webkit-box-shadow: 1px 0px 43px 0px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 1px 0px 43px 0px rgba(0, 0, 0, 0.75);
+    box-shadow: 1px 0px 43px 0px rgba(0, 0, 0, 0.75);
+  }
+  .caller{
+    -webkit-box-shadow: 1px 0px 43px 0px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 1px 0px 43px 0px rgba(0, 0, 0, 0.75);
+    box-shadow: 1px 0px 43px 0px rgba(0, 0, 0, 0.75);
+  }
 
 </style>
