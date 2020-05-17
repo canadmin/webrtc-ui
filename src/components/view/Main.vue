@@ -4,6 +4,8 @@
       <div class="col-3  " style="height: 100vh">
         <div class="left-side">
           <div class="text-center mt-5">
+            <button class="mt-1" @click="cikisYap()">Çıkış Yap</button>
+            <br>
             <span class="font-custom ">{{fullName}}</span>
           </div>
           <app-leftside :friendsList="leftData.friendList" :requestsList="leftData.requestList"
@@ -54,9 +56,9 @@
     const configuration = {
         iceServers: [
             {
-                urls: "turn:" + 'localhost:8080',  // A TURN server
-                username: "webrtc",
-                credential: "turnserver"
+                urls: 'turn:numb.viagenie.ca',  // A TURN server
+                username: "muazkh",
+                credential: "webrtc@live.com"
             }
         ]
 
@@ -191,6 +193,15 @@
                 }
 
             },
+            cikisYap(){
+                localStorage.removeItem('fullName');
+                localStorage.removeItem('token');
+                localStorage.removeItem('username');
+                localStorage.removeItem('userId');
+                this.$router.push("/auth")
+
+
+            }
 
 
         },
