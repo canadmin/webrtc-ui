@@ -49,7 +49,7 @@ const store = new Vuex.Store({
     login({commit, dispatch, state}, authData) {
       if (authData.isUser === false) {
        axios.post("http://localhost:8081/signup",
-          {username: authData.username, password: authData.password})
+          {username: authData.username, password: authData.password, fullName : authData.fullName})
           .then(response => {
             console.log(response)
           })
@@ -62,6 +62,7 @@ const store = new Vuex.Store({
             localStorage.setItem('token',response.data.Token);
             localStorage.setItem('userId',response.data.User.userId);
             localStorage.setItem('username',response.data.User.username);
+            localStorage.setItem('fullName',response.data.User.fullName)
 
           })
       }

@@ -20,8 +20,8 @@ export default {
   .auth-component {
     background-color: #2c3e50;
     margin: auto;
-    height: 60vh;
-    width: 30%;
+    height: 500px;
+    width: 60%;
     margin-top: 150px;
     padding: 10px;
     position: relative;
@@ -54,17 +54,17 @@ export default {
     background-color: #f5f5f5;
     height: 50px;
     padding-left: 10px;
-    width: 70%;
+    width: 40%;
   }
 
   .app-button {
-    width: 70%;
+    width: 40%;
     border-radius: 5px;
     border: 0;
       color: #2c3e50;
     box-shadow: 0 0 0 1px rgba(0, 0, 0, .15), 0 2px 3px rgba(0, 0, 0, .2);
     background-color: #f5f5f5;
-    height: 50px;
+    height: 50px;margin-top: 15px;
     padding-left: 10px;
   }
 
