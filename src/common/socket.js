@@ -1,7 +1,7 @@
 import Vue from "vue";
 import store from "../store/store";
 
-const socket = new WebSocket("wss://18.196.21.191/socket");
+const socket = new WebSocket("ws://18.196.21.191/socket");
 
 const emitter = new Vue({
   methods:{
