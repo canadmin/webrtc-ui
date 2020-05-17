@@ -58,7 +58,7 @@ export const requests = {
       senderId: store.getters.getUserId.toString(),
       receiverId: receiverUserId.toString(),
     }
-    axios.post('https://dualchat2.herokuapp.com/sendRequest', {}, {
+    axios.post('https://dualchat2.herokuapp.com/api/sendRequest', {}, {
         headers: {
           'Authorization': store.getters.getToken.toString(),
           'Content-Type': 'application/json',
