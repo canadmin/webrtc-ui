@@ -48,13 +48,13 @@ const store = new Vuex.Store({
     },
     login({commit, dispatch, state}, authData) {
       if (authData.isUser === false) {
-       axios.post("http://18.196.21.191/signup",
+       axios.post("https://dualchat2.herokuapp.com/signup",
           {username: authData.username, password: authData.password, fullName : authData.fullName})
           .then(response => {
             console.log(response)
           })
       } else {
-        return axios.post("http://18.196.21.191/login",
+        return axios.post("https://dualchat2.herokuapp.com/login",
           {username: authData.username, password: authData.password})
           .then(response => {
             console.log(response.data)

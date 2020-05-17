@@ -3,7 +3,7 @@ import store from "../store/store";
 
 export const requests = {
   getUserInfo() {
-      return axios.get('http://18.196.21.191/api/getUserInfo', {
+      return axios.get('https://dualchat2.herokuapp.com/api/getUserInfo', {
       params: {
         userId: store.getters.getUserId.toString()
       },
@@ -26,7 +26,7 @@ export const requests = {
       senderId: requestOwnerId.toString(),
       reqId: reqId
     }
-    axios.post('http://18.196.21.191/api/acceptRequest', {}, {
+    axios.post('https://dualchat2.herokuapp.com/api/acceptRequest', {}, {
         headers: {
           'Authorization': store.getters.getToken.toString(),
           'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ export const requests = {
     })
   },
   searchFriend(name){
-    return axios.get('http://18.196.21.191/api/getuser', {
+    return axios.get('https://dualchat2.herokuapp.com/api/getuser', {
       params: {
         username: name
       },
@@ -58,7 +58,7 @@ export const requests = {
       senderId: store.getters.getUserId.toString(),
       receiverId: receiverUserId.toString(),
     }
-    axios.post('http://18.196.21.191/api/sendRequest', {}, {
+    axios.post('https://dualchat2.herokuapp.com/sendRequest', {}, {
         headers: {
           'Authorization': store.getters.getToken.toString(),
           'Content-Type': 'application/json',
