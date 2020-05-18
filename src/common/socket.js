@@ -1,7 +1,7 @@
 import Vue from "vue";
 import store from "../store/store";
 
-const socket = new WebSocket("wss://dualchat2.herokuapp.com/socket");
+const socket = new WebSocket("ws://http://localhost:8081/socket");
 
 const emitter = new Vue({
   methods:{
