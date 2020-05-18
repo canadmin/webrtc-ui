@@ -4,7 +4,7 @@
       <div class="col-3  " style="height: 100vh">
         <div class="left-side">
           <div class="text-center mt-5">
-            <button class="mt-1" @click="cikisYap()">Çıkış Yap</button>
+            <button class="mt-1  btn-primary btn" @click="cikisYap()" >Logout</button>
             <br>
             <span class="font-custom ">{{fullName}}</span>
           </div>
