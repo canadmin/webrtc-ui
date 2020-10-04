@@ -68,5 +68,23 @@ export const requests = {
     ).then((response) => {
       console.log(response.data)
     })
+  },
+  createRoom(roomData){
+    let data = {
+      roomName : roomData.roomName,
+      owner :  localStorage.getItem("fullName"),
+      ownerId : localStorage.getItem("userId"),
+      maximumMemberCount : roomData.maximumMemberCount
+    }
+
+    return axios.post('http://localhost:8081/api/createRoom',data,
+    {
+      headers: {
+        'Authorization': store.getters.getToken.toString(),
+        'Content-Type': 'application/json',
+    }
+  }).then(response => {
+    return response;
+  })
   }
 }
