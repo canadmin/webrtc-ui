@@ -42,14 +42,17 @@ export default {
             onSubmit() {
                 let roomInfo;
                    roomInfo = {
-                   
-                    roomName: this.room.roomName,
+                   roomName: this.room.roomName,
                     owner: null,
                     maximumMember : this.room.maximumMember,
                     ownerId : null
                    };
-                console.log(nUser)
-               requests.createRoom(data);
+                   console.log(roomInfo)
+                   requests.createRoom(roomInfo).then((response) => {
+                   let roomInfo = response.data;
+                   console.log(response);
+                        this.$router.push("/room/"+roomInfo.roomName)
+                    });
             }
         }
 }

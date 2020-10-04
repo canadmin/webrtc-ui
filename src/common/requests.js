@@ -72,8 +72,8 @@ export const requests = {
   createRoom(roomData){
     let data = {
       roomName : roomData.roomName,
-      owner : store.getters.getUsername.toString(),
-      ownerId : store.getters.getUserId.toString,
+      owner :  localStorage.getItem("fullName"),
+      ownerId : localStorage.getItem("userId"),
       maximumMemberCount : roomData.maximumMemberCount
     }
 
