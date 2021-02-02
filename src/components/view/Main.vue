@@ -34,8 +34,8 @@
             </div>
             <div class="d-inline">
               <div class="chat-action-button">
-                <img src="../../assets/chatCam.png" width="100" class="">
-                <img src="../../assets/chatVoice.png" width="100" class="ml-5">
+                <img src="../../assets/chatCam.png" width="100" class="" @click="camActivePassive()">
+                <img src="../../assets/chatVoice.png" width="100" class="ml-5" @click="micActivePassive()">
                 <img src="../../assets/chatcancel.png" class="chat-icon ml-5">
               </div>
             </div>
@@ -81,6 +81,8 @@
                 selfStream : null,
                 isCallActive : false,
                 isAvailableCaller : false,
+                isMicActive : true,
+                sender : null
 
             }
         },
@@ -177,7 +179,7 @@
             createPeerConnection() {
                 console.log("peer connection kurulumu")
                 this.peerConn = new RTCPeerConnection(configuration);
-                  this.peerConn.onaddstream = e => {
+                this.sender =   this.peerConn.onaddstream = e => {
                       console.log("ontrack calisti")
                       var video = document.getElementById("remoteVideo");
                       video.srcObject = e.stream;
@@ -199,9 +201,25 @@
                 localStorage.removeItem('username');
                 localStorage.removeItem('userId');
                 this.$router.push("/auth")
+            },
 
+            async micActivePassive(){
+              console.log("ses kapandı")
+              this.selfStream.getTracks().forEach((track)=>{
+                if(track.kind === 'audio'){
+                  track.enabled = !track.enabled;
+                }
+              })
+            },
 
-            }
+          async camActivePassive(){
+            console.log("ses kapandı")
+            this.selfStream.getTracks().forEach((track)=>{
+              if(track.kind === 'video'){
+                track.enabled = !track.enabled;
+              }
+            })
+          }
 
 
         },
@@ -278,6 +296,8 @@
   video {
     width: 40%;
     height: 40vh;
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
   }
   .chat-action-button{
     width: 70%;
@@ -295,5 +315,4 @@
     -moz-box-shadow: 1px 0px 43px 0px rgba(0, 0, 0, 0.75);
     box-shadow: 1px 0px 43px 0px rgba(0, 0, 0, 0.75);
   }
-
 </style>
