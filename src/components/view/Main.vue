@@ -56,10 +56,11 @@
     const configuration = {
         iceServers: [
           {
-            url: 'turn:numb.viagenie.ca',
-            credential: 'muazkh',
-            username: 'webrtc@live.com'
-          },
+            urls: 'turn:my-turn-server.mycompany.com:19403',
+            username: 'optional-username',
+            credentials: 'auth-token'
+          }
+
 
 
         ]
