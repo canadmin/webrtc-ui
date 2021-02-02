@@ -55,11 +55,13 @@
     let localStream;
     const configuration = {
         iceServers: [
-            {
-                urls: 'turn:numb.viagenie.ca',  // A TURN server
-                username: "muazkh",
-                credential: "webrtc@live.com"
-            }
+          {
+            url: 'turn:numb.viagenie.ca',
+            credential: 'muazkh',
+            username: 'webrtc@live.com'
+          },
+
+
         ]
 
     };
