@@ -14,20 +14,9 @@ export const router = new Router({
       name: 'login',
       component: Login
     },
-    // {
-    //   path: "/",
-    //   component: Main,
-    //   beforeEnter(to, from, next) {
-    //     if (!store.getters.isAuthenticated) {
-    //       next();
-    //     } else {
-    //       next("/auth");
-    //     }
-    //   }
-    // },
     {
       path: "/",
-      component: Room,
+      component: Main,
       beforeEnter(to, from, next) {
         if (!store.getters.isAuthenticated) {
           next();
@@ -35,7 +24,18 @@ export const router = new Router({
           next("/auth");
         }
       }
-    }
+    },
+    // {
+    //   path: "/",
+    //   component: Room,
+    //   beforeEnter(to, from, next) {
+    //     if (!store.getters.isAuthenticated) {
+    //       next();
+    //     } else {
+    //       next("/auth");
+    //     }
+    //   }
+    // }
   ],
   mode: "history"
 });
