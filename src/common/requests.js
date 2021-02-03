@@ -1,7 +1,7 @@
 import axios from "axios"
 import store from "../store/store";
-// export const url = "https://dualchat2.herokuapp.com/";
-export const url = "http://localhost:8081/";
+export const url = "https://dualchat2.herokuapp.com/";
+//export const url = "http://localhost:8081/";
 
 export const requests = {
   getUserInfo() {
