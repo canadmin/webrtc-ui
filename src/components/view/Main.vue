@@ -35,7 +35,7 @@
 
           <div class="in-chat" v-show="isCallActive">
             <div class="camera-block d-inline ">
-              <video id="localVideo"  class="mt-5 mr-5" style="background-color: black" autoplay height="250"></video>
+              <video id="localVideo"  class="mt-5 mr-5" style="background-color: black" autoplay height="250" muted="muted"></video>
               <video id="remoteVideo"  class="mt-5 ml-5"style="background-color: black" autoplay height="250"></video>
             </div>
             <div class="d-inline">
