@@ -60,15 +60,16 @@
 
     let localStream;
     const configuration = {
-        iceServers: [
-          {
-            urls: 'turn:numb.viagenie.ca',
-            credential: 'barancan009@gmail.com',
-            username: 'deneme'
-          },
-        ]
-
+      // iceServers: [
+      //   {
+      //     urls: 'turn:numb.viagenie.ca',
+      //     credential: 'barancan009@gmail.com',
+      //     username: 'deneme'
+      //   },
+      // ]
+    'iceServers': [{'urls': 'stun:stun4.l.google.com:19302'}]
     };
+
     export default {
         name: "Main",
         data() {
