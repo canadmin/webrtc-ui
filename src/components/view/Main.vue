@@ -63,8 +63,8 @@
         iceServers: [
           {
             urls: 'turn:numb.viagenie.ca',
-            credential: 'icanyard@gmail.com',
-            username: 'deneme123'
+            credential: 'barancan009@gmail.com',
+            username: 'deneme'
           },
         ]
 
