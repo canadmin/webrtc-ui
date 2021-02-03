@@ -1,5 +1,11 @@
 <template>
   <div class="container-fluid">
+    <div class="notification-div" v-show="notificationMessage === true">
+      <div class="inner-notification text-center mt-4">
+        <span v-text="notificationMessage"></span>
+        <p>Kapatman için üstüme tıkla</p>
+      </div>
+    </div>
     <div class="row">
       <div class="col-3  " style="height: 100vh">
         <div class="left-side">
@@ -9,7 +15,7 @@
             <span class="font-custom ">{{fullName}}</span>
           </div>
           <app-leftside :friendsList="leftData.friendList" :requestsList="leftData.requestList"
-                        @messageFromChild="call"></app-leftside>
+                        @messageFromChild="call" @friendRequestFromChild="getUserInfo"></app-leftside>
 
         </div>
       </div>
@@ -82,7 +88,9 @@
                 isCallActive : false,
                 isAvailableCaller : false,
                 isMicActive : true,
-                sender : null
+                sender : null,
+                notificationMessage :"null",
+                showNotificationPopup: false
 
             }
         },
@@ -114,10 +122,12 @@
                     this.handleAnswer(content.data);
                 } else if (content.event === "candidate") {
                     this.handleCandidate(content.data)
+                } else if(content.event === 'friendRequest'){
+                    this.notificationMessage = true;
                 }
             },
             async call(callingUsername) { // burası teklif yapacak ( offer )
-                this.isCallActive = true;
+              this.isCallActive = true;
                 var selfVideo = document.getElementById('localVideo');
                 selfVideo.srcObject = this.selfStream;
                 this.callingUsername = callingUsername;
@@ -225,8 +235,8 @@
         },
 
         created() {
-            this.startMyVideo()
-            this.$store.dispatch('getUserInfo');
+          this.startMyVideo()
+          this.$store.dispatch('getUserInfo');
             this.getUserInfo();
             Socket.$on("message", this.handleMessage);
             Socket.$on("close", this.handleMessage);
@@ -314,5 +324,15 @@
     -webkit-box-shadow: 1px 0px 43px 0px rgba(0, 0, 0, 0.75);
     -moz-box-shadow: 1px 0px 43px 0px rgba(0, 0, 0, 0.75);
     box-shadow: 1px 0px 43px 0px rgba(0, 0, 0, 0.75);
+  }
+  .notification-div{
+    position: absolute;
+    z-index: 20;
+    width: 300px;
+    height: 70px;
+    left: 50%;
+    top: 10px;
+    background: #0b2e13;
+    color: white;
   }
 </style>

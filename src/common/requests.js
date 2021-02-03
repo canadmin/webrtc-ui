@@ -1,9 +1,11 @@
 import axios from "axios"
 import store from "../store/store";
+// export const url = "https://dualchat2.herokuapp.com/";
+export const url = "http://localhost:8081/";
 
 export const requests = {
   getUserInfo() {
-      return axios.get('https://dualchat2.herokuapp.com/api/getUserInfo', {
+      return axios.get(url + 'api/getUserInfo', {
       params: {
         userId: store.getters.getUserId.toString()
       },
@@ -26,7 +28,7 @@ export const requests = {
       senderId: requestOwnerId.toString(),
       reqId: reqId
     }
-    axios.post('https://dualchat2.herokuapp.com/api/acceptRequest', {}, {
+    axios.post(url + 'api/acceptRequest', {}, {
         headers: {
           'Authorization': store.getters.getToken.toString(),
           'Content-Type': 'application/json',
@@ -38,7 +40,7 @@ export const requests = {
     })
   },
   searchFriend(name){
-    return axios.get('https://dualchat2.herokuapp.com/api/getuser', {
+    return axios.get(url + 'api/getuser', {
       params: {
         username: name
       },
@@ -58,7 +60,7 @@ export const requests = {
       senderId: store.getters.getUserId.toString(),
       receiverId: receiverUserId.toString(),
     }
-    axios.post('https://dualchat2.herokuapp.com/api/sendRequest', {}, {
+    axios.post(url + 'api/sendRequest', {}, {
         headers: {
           'Authorization': store.getters.getToken.toString(),
           'Content-Type': 'application/json',
@@ -77,7 +79,7 @@ export const requests = {
       maximumMemberCount : roomData.maximumMemberCount
     }
 
-    return axios.post('https://dualchat2.herokuapp.com/api/createRoom',data,
+    return axios.post(url + 'api/createRoom',data,
     {
       headers: {
         'Authorization': store.getters.getToken.toString(),

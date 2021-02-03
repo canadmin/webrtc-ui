@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import axios from "axios";
 import {router} from "../router";
-
+import {url} from "../common/requests"
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
@@ -48,13 +48,13 @@ const store = new Vuex.Store({
     },
     login({commit, dispatch, state}, authData) {
       if (authData.isUser === false) {
-       axios.post("https://dualchat2.herokuapp.com/signup",
+       axios.post(url + "signup",
           {username: authData.username, password: authData.password, fullName : authData.fullName})
           .then(response => {
             console.log(response)
           })
       } else {
-        return axios.post("https://dualchat2.herokuapp.com/login",
+        return axios.post(url + "login",
           {username: authData.username, password: authData.password})
           .then(response => {
             console.log(response.data)
