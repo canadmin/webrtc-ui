@@ -14,9 +14,8 @@
             <br>
             <span class="font-custom ">{{fullName}}</span>
           </div>
-          <app-leftside :friendsList="leftData.friendList" :requestsList="leftData.requestList"
+          <app-leftside :friendsList="leftData.friendList" :callRequest="isCallRequest" :newMessage="newMessage" :callerUser="callerUser" :requestsList="leftData.requestList"
                         @messageFromChild="call" @friendRequestFromChild="getUserInfo"></app-leftside>
-
         </div>
       </div>
       <div class="col-9 h-100" style="height: 100vh;">
@@ -91,8 +90,10 @@
                 isMicActive : true,
                 sender : null,
                 notificationMessage :"null",
-                showNotificationPopup: false
-
+                showNotificationPopup: false,
+                isCallRequest: false,
+                newMessage : null,
+                callerUser : null
             }
         },
         components: {
@@ -118,13 +119,17 @@
                     this.isAvailableCaller = true;
                     this.destination = content.dest;
                     this.destinationData = content.data;
+                    this.callerUser = content.dest;
                     // this.handleCall(content.dest, content.data);
                 } else if (content.event === "answer") {
                     this.handleAnswer(content.data);
                 } else if (content.event === "candidate") {
                     this.handleCandidate(content.data)
                 } else if(content.event === 'friendRequest'){
-                    this.notificationMessage = true;
+                    this.showNotificationPopup = true;
+                }else if(content.event === 'text-message'){
+                   this.newMessage = content.data;
+                   console.log("mesaj geldi")
                 }
             },
             async call(callingUsername) { // burası teklif yapacak ( offer )
@@ -149,6 +154,7 @@
             async handleCall() { // burası cevap oluşturuyor
                 this.isAvailableCaller = false;
                 this.isCallActive = true;
+                this.isCallRequest = true;
                 var dest, sdp;
                 dest = this.destination;
                 sdp = this.destinationData;

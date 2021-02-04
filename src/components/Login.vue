@@ -1,8 +1,14 @@
 <template>
   <div class="">
+
+    <div class="text-center">
+      <h1 class="mt-5">
+        Hoş geldin çekirge!!
+      </h1>
+    </div>
     <div class=" auth-component text-center" v-if="page === 'login'">
       <div class="">
-        <p class="titleStyle" v-text="isUser ? 'Sign in' : 'Sign up'">Sing In</p>
+        <p class="titleStyle" v-text="isUser ? 'Giriş Yap' : 'Sign up'">Sing In</p>
       </div>
       <div class="sign-form">
         <form @submit.prevent="onSubmit">
